@@ -52,6 +52,20 @@ def plot_all_three(x, x_minus, kernel, pred_tau, save_dir="./fig/ppt"):
     )
 
 
+
+def to_serializable(obj):
+    if isinstance(obj, dict):
+        return {str(k): to_serializable(v) for k, v in obj.items()}
+    elif isinstance(obj, (list, tuple)):
+        return [to_serializable(v) for v in obj]
+    elif hasattr(obj, "item"):  # torch.tensor 或 numpy scalar
+        return obj.item()
+    elif isinstance(obj, (np.integer, np.float32, np.float64)):
+        return obj.item()
+    else:
+        return obj
+
+
 def delta_real_pred_per_element(pred_tau, label):
     pred_tau = torch.tensor(pred_tau)
     label = torch.tensor(label)
@@ -94,18 +108,6 @@ def cal_dE_avgTimbre(x, x_minus, n):
     dE_avgTimbre = E0/Em / n
     return dE_avgTimbre
 
-
-def to_serializable(obj):
-    if isinstance(obj, dict):
-        return {str(k): to_serializable(v) for k, v in obj.items()}
-    elif isinstance(obj, (list, tuple)):
-        return [to_serializable(v) for v in obj]
-    elif hasattr(obj, "item"):  # torch.tensor 或 numpy scalar
-        return obj.item()
-    elif isinstance(obj, (np.integer, np.float32, np.float64)):
-        return obj.item()
-    else:
-        return obj
 
 class Evaluator:
     def __init__(self):
@@ -160,3 +162,4 @@ class Evaluator:
             self.idx2eval = json.load(f)
         print(f"[Evaluator] Loaded results from {load_path}")
         return self.idx2eval
+
